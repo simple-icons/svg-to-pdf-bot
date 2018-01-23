@@ -1,0 +1,90 @@
+{
+  "jsonAdded": {
+    "event": "push",
+    "payload": {
+      "ref": "refs/heads/this-is-not-the-branch-youre-looking-for",
+      "commits": [
+        {
+          "added": ["added.json"],
+          "modified": [],
+          "removed": []
+        }
+      ],
+      "repository": {
+        "name": "testing-things",
+        "owner": {
+          "login": "ericcornelissen"
+        }
+      },
+      "installation": {
+        "id": 9001
+      }
+    }
+  },
+  "cssRemoved": {
+    "event": "push",
+    "payload": {
+      "ref": "refs/heads/this-is-not-the-branch-youre-looking-for",
+      "commits": [
+        {
+          "added": [],
+          "modified": [],
+          "removed": ["removed.css"]
+        }
+      ],
+      "repository": {
+        "name": "testing-things",
+        "owner": {
+          "login": "ericcornelissen"
+        }
+      },
+      "installation": {
+        "id": 9001
+      }
+    }
+  },
+  "htmlModified": {
+    "event": "push",
+    "payload": {
+      "ref": "refs/heads/this-is-not-the-branch-youre-looking-for",
+      "commits": [
+        {
+          "added": [],
+          "modified": ["modified.html"],
+          "removed": []
+        }
+      ],
+      "repository": {
+        "name": "testing-things",
+        "owner": {
+          "login": "ericcornelissen"
+        }
+      },
+      "installation": {
+        "id": 9001
+      }
+    }
+  },
+  "wrongBranch": {
+    "event": "push",
+    "payload": {
+      "ref": "refs/heads/this-is-not-the-branch-youre-looking-for",
+      "commits": [
+        {
+          "added": ["banana.svg"],
+          "modified": ["for.svg"],
+          "removed": ["scale.svg"]
+        }
+      ],
+      "repository": {
+        "name": "testing-things",
+        "owner": {
+          "login": "ericcornelissen"
+        }
+      },
+      "installation": {
+        "id": 9001
+      }
+    }
+  }
+}

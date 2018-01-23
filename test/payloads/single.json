@@ -1,0 +1,68 @@
+{
+  "addition": {
+    "event": "push",
+    "payload": {
+      "ref": "refs/heads/source-branch",
+      "commits": [
+        {
+          "added": ["test.svg"],
+          "modified": [],
+          "removed": []
+        }
+      ],
+      "repository": {
+        "name": "testing-things",
+        "owner": {
+          "login": "ericcornelissen"
+        }
+      },
+      "installation": {
+        "id": 9001
+      }
+    }
+  },
+  "removal": {
+    "event": "push",
+    "payload": {
+      "ref": "refs/heads/source-branch",
+      "commits": [
+        {
+          "added": [],
+          "modified": [],
+          "removed": ["test.svg"]
+        }
+      ],
+      "repository": {
+        "name": "testing-things",
+        "owner": {
+          "login": "ericcornelissen"
+        }
+      },
+      "installation": {
+        "id": 9001
+      }
+    }
+  },
+  "modification": {
+    "event": "push",
+    "payload": {
+      "ref": "refs/heads/source-branch",
+      "commits": [
+        {
+          "added": [],
+          "modified": ["test.svg"],
+          "removed": []
+        }
+      ],
+      "repository": {
+        "name": "testing-things",
+        "owner": {
+          "login": "ericcornelissen"
+        }
+      },
+      "installation": {
+        "id": 9001
+      }
+    }
+  }
+}

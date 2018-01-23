@@ -1,0 +1,59 @@
+{
+  "differentChanges": {
+    "event": "push",
+    "payload": {
+      "ref": "refs/heads/source-branch",
+      "commits": [
+        {
+          "added": ["added.svg"],
+          "modified": ["modified.svg"],
+          "removed": ["removed.svg"]
+        }
+      ],
+      "repository": {
+        "name": "testing-things",
+        "owner": {
+          "login": "ericcornelissen"
+        }
+      },
+      "installation": {
+        "id": 9001
+      }
+    }
+  },
+  "multipleCommits": {
+    "event": "push",
+    "payload": {
+      "ref": "refs/heads/source-branch",
+      "commits": [
+        {
+          "message": "first commit",
+          "added": ["added.svg"],
+          "modified": [],
+          "removed": []
+        },
+        {
+          "message": "second commit",
+          "added": [],
+          "modified": ["modified.svg"],
+          "removed": []
+        },
+        {
+          "message": "second commit",
+          "added": [],
+          "modified": [],
+          "removed": ["removed.svg"]
+        }
+      ],
+      "repository": {
+        "name": "testing-things",
+        "owner": {
+          "login": "ericcornelissen"
+        }
+      },
+      "installation": {
+        "id": 9001
+      }
+    }
+  }
+}

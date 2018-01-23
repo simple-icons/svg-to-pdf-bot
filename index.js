@@ -9,17 +9,15 @@ const defaultConfig = {
 module.exports = (robot) => {
   robot.on('push', async context => {
     robot.log.debug('New push detected')
-    let push = context.payload
-
     const config = await context.config('svg-to-pdf.yml', defaultConfig)
 
-    let branch = push.ref.replace('refs/heads/', '')
+    let branch = context.payload.ref.replace('refs/heads/', '')
     if (branch !== config.source) {
-      robot.log.info({base: push.ref}, 'event ignored, branch not of interest')
+      robot.log.info({base: context.payload.ref}, 'event ignored, branch not of interest')
       return
     }
 
-    for (let commit of push.commits) {
+    for (let commit of context.payload.commits) {
       let newFiles = commit.added.filter(file => file.endsWith('.svg'))
       for (let file of newFiles) {
         robot.log.info({file: file}, 'new .svg file detected')

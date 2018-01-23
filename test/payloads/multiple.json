@@ -1,11 +1,11 @@
 {
-  "added": {
+  "additions": {
     "event": "push",
     "payload": {
-      "ref": "refs/heads/develop",
+      "ref": "refs/heads/source-branch",
       "commits": [
         {
-          "added": ["test.svg"],
+          "added": ["foo.svg", "bar.svg"],
           "modified": [],
           "removed": []
         }
@@ -21,15 +21,15 @@
       }
     }
   },
-  "removed": {
+  "removals": {
     "event": "push",
     "payload": {
-      "ref": "refs/heads/develop",
+      "ref": "refs/heads/source-branch",
       "commits": [
         {
           "added": [],
           "modified": [],
-          "removed": ["test.svg"]
+          "removed": ["foo.svg", "bar.svg"]
         }
       ],
       "repository": {
@@ -43,14 +43,14 @@
       }
     }
   },
-  "modified": {
+  "modifications": {
     "event": "push",
     "payload": {
-      "ref": "refs/heads/develop",
+      "ref": "refs/heads/source-branch",
       "commits": [
         {
           "added": [],
-          "modified": ["test.svg"],
+          "modified": ["foo.svg", "bar.svg"],
           "removed": []
         }
       ],
