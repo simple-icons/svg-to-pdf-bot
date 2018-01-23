@@ -1,8 +1,8 @@
-const svg2pdf = require('./lib/svg-to-pdf.js')
+const { convert, getSHA } = require('./lib/util.js')
 
 module.exports = (robot) => {
   robot.on('push', async context => {
-    robot.log.debug(`New push detected`)
+    robot.log.debug('New push detected')
     let push = context.payload
 
     let branch = push.ref.replace('refs/heads/', '')
@@ -12,27 +12,64 @@ module.exports = (robot) => {
     }
 
     push.commits.forEach(commit => {
-      let added = []
-      commit.added.filter(file => !added.includes(file))
+      commit.added.filter(file => file.endsWith('.svg'))
         .forEach(async file => {
-          robot.log.info({file: file}, '1 new file detected')
-          added.push(file)
+          robot.log.info({file: file}, 'new file detected')
+          let pdfFile = file.replace('.svg', '.pdf')
 
-          robot.log.debug(`Converting ${file} into a a .pdf file`)
-          let targetFile = context.repo({path: file, ref: branch})
-          let content = await context.github.repos.getContent(targetFile)
-          let pdf = await svg2pdf(content.data.content)
+          robot.log.debug(`Converting ${file} into a .pdf file`)
+          let pdf = await convert(context, file, branch)
 
-          robot.log.debug(`Preparing commit for the newly created pdf`)
+          robot.log.debug(`Preparing commit for the newly created .pdf`)
           let commit = context.repo({
             branch: process.env.TARGET_BRANCH,
             content: pdf,
             message: `Add ${file} as pdf`,
-            path: file.replace('.svg', '.pdf')
+            path: pdfFile
           })
 
           robot.log.debug(`Commiting to repository on branch ${process.env.TARGET_BRANCH}`)
           context.github.repos.createFile(commit)
+        })
+
+      commit.removed.filter(file => file.endsWith('.svg'))
+        .forEach(async file => {
+          robot.log.info({file: file}, 'file deletion detected')
+          let pdfFile = file.replace('.svg', '.pdf')
+          let sha = await getSHA(context, pdfFile, process.env.TARGET_BRANCH)
+
+          robot.log.debug(`Preparing commit to delete ${pdfFile}`)
+          let commit = context.repo({
+            branch: process.env.TARGET_BRANCH,
+            message: `Remove ${pdfFile}`,
+            path: pdfFile,
+            sha: sha
+          })
+
+          robot.log.debug(`Commiting to repository on branch ${process.env.TARGET_BRANCH}`)
+          context.github.repos.deleteFile(commit)
+        })
+
+      commit.modified.filter(file => file.endsWith('.svg'))
+        .forEach(async file => {
+          robot.log.info({file: file}, 'file modification detected')
+          let pdfFile = file.replace('.svg', '.pdf')
+          let sha = await getSHA(context, pdfFile, process.env.TARGET_BRANCH)
+
+          robot.log.debug(`Reconverting ${file} into a .pdf file`)
+          let pdf = await convert(context, file, branch)
+
+          robot.log.debug(`Preparing commit to update ${pdfFile}`)
+          let commit = context.repo({
+            branch: process.env.TARGET_BRANCH,
+            content: pdf,
+            message: `Update ${pdfFile}`,
+            path: pdfFile,
+            sha: sha
+          })
+
+          robot.log.debug(`Commiting to repository on branch ${process.env.TARGET_BRANCH}`)
+          context.github.repos.updateFile(commit)
         })
     })
   })
