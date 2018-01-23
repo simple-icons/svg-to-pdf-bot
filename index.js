@@ -1,12 +1,20 @@
 const { convert, getSHA } = require('./lib/util.js')
 
+const defaultConfig = {
+  dry: false,
+  source: 'develop',
+  target: 'develop'
+}
+
 module.exports = (robot) => {
   robot.on('push', async context => {
     robot.log.debug('New push detected')
     let push = context.payload
 
+    const config = await context.config('svg-to-pdf.yml', defaultConfig)
+
     let branch = push.ref.replace('refs/heads/', '')
-    if (branch !== process.env.SOURCE_BRANCH) {
+    if (branch !== config.source) {
       robot.log.info({base: push.ref}, 'event ignored, branch not of interest')
       return
     }
@@ -14,62 +22,62 @@ module.exports = (robot) => {
     for (let commit of push.commits) {
       let newFiles = commit.added.filter(file => file.endsWith('.svg'))
       for (let file of newFiles) {
-        robot.log.info({file: file}, 'new file detected')
+        robot.log.info({file: file}, 'new .svg file detected')
         let pdfFile = file.replace('.svg', '.pdf')
 
-        robot.log.debug(`Converting ${file} into a .pdf file`)
+        robot.log.info(`Converting ${file} into a .pdf file`)
         let pdf = await convert(context, file, branch)
 
-        robot.log.debug(`Preparing commit for the newly created .pdf`)
+        robot.log.info(`Preparing commit for the newly created .pdf`)
         let commit = context.repo({
-          branch: process.env.TARGET_BRANCH,
+          branch: config.target,
           content: pdf,
           message: `Add ${file} as pdf`,
           path: pdfFile
         })
 
-        robot.log.debug(`Commiting to repository on branch ${process.env.TARGET_BRANCH}`)
-        context.github.repos.createFile(commit)
+        robot.log.info(`Commiting to repository on branch ${config.target}`)
+        if (!config.dry) context.github.repos.createFile(commit)
       }
 
       let removedFiles = commit.removed.filter(file => file.endsWith('.svg'))
       for (let file of removedFiles) {
-        robot.log.info({file: file}, 'file deletion detected')
+        robot.log.info({file: file}, '.svg file deletion detected')
         let pdfFile = file.replace('.svg', '.pdf')
-        let sha = await getSHA(context, pdfFile, process.env.TARGET_BRANCH)
+        let sha = await getSHA(context, pdfFile, config.target)
 
-        robot.log.debug(`Preparing commit to delete ${pdfFile}`)
+        robot.log.info(`Preparing commit to delete ${pdfFile}`)
         let commit = context.repo({
-          branch: process.env.TARGET_BRANCH,
+          branch: config.target,
           message: `Remove ${pdfFile}`,
           path: pdfFile,
           sha: sha
         })
 
-        robot.log.debug(`Commiting to repository on branch ${process.env.TARGET_BRANCH}`)
-        context.github.repos.deleteFile(commit)
+        robot.log.info(`Commiting to repository on branch ${config.target}`)
+        if (!config.dry) context.github.repos.deleteFile(commit)
       }
 
       let modifiedFiles = commit.modified.filter(file => file.endsWith('.svg'))
       for (let file of modifiedFiles) {
-        robot.log.info({file: file}, 'file modification detected')
+        robot.log.info({file: file}, '.svg file modification detected')
         let pdfFile = file.replace('.svg', '.pdf')
-        let sha = await getSHA(context, pdfFile, process.env.TARGET_BRANCH)
+        let sha = await getSHA(context, pdfFile, config.target)
 
-        robot.log.debug(`Reconverting ${file} into a .pdf file`)
+        robot.log.info(`Reconverting ${file} into a .pdf file`)
         let pdf = await convert(context, file, branch)
 
-        robot.log.debug(`Preparing commit to update ${pdfFile}`)
+        robot.log.info(`Preparing commit to update ${pdfFile}`)
         let commit = context.repo({
-          branch: process.env.TARGET_BRANCH,
+          branch: config.target,
           content: pdf,
           message: `Update ${pdfFile}`,
           path: pdfFile,
           sha: sha
         })
 
-        robot.log.debug(`Commiting to repository on branch ${process.env.TARGET_BRANCH}`)
-        context.github.repos.updateFile(commit)
+        robot.log.info(`Commiting to repository on branch ${config.target}`)
+        if (!config.dry) context.github.repos.updateFile(commit)
       }
     }
   })
