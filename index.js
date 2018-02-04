@@ -2,8 +2,10 @@ const { convert, getSHA } = require('./lib/util.js')
 
 const defaultConfig = {
   dry: false,
-  source: 'develop',
-  target: 'develop'
+  sourceBranch: 'develop',
+  sourceRepo: 'simple-icons',
+  targetBranch: 'master',
+  targetRepo: 'simple-icons-pdf'
 }
 
 module.exports = (robot) => {
@@ -12,8 +14,9 @@ module.exports = (robot) => {
     const config = await context.config('svg-to-pdf.yml', defaultConfig)
 
     let branch = context.payload.ref.replace('refs/heads/', '')
-    if (branch !== config.source) {
-      robot.log.info({base: context.payload.ref}, 'event ignored, branch not of interest')
+    let repo = context.payload.repository.name
+    if (branch !== config.sourceBranch || repo !== config.sourceRepo) {
+      robot.log.info({branch: branch, repo: repo}, 'event ignored, branch and/or repo not the correct source')
       return
     }
 
@@ -28,13 +31,14 @@ module.exports = (robot) => {
 
         robot.log.info(`Preparing commit for the newly created .pdf`)
         let commit = context.repo({
-          branch: config.target,
+          branch: config.targetBranch,
           content: pdf,
           message: `Add ${file} as pdf`,
-          path: pdfFile
+          path: pdfFile,
+          repo: config.targetRepo
         })
 
-        robot.log.info(`Commiting to repository on branch ${config.target}`)
+        robot.log.info(`Commiting to repository ${config.targetRepo} on branch ${config.targetBranch}`)
         if (!config.dry) context.github.repos.createFile(commit)
       }
 
@@ -42,17 +46,18 @@ module.exports = (robot) => {
       for (let file of removedFiles) {
         robot.log.info({file: file}, '.svg file deletion detected')
         let pdfFile = file.replace('.svg', '.pdf')
-        let sha = await getSHA(context, pdfFile, config.target)
+        let sha = await getSHA(context, config, pdfFile)
 
         robot.log.info(`Preparing commit to delete ${pdfFile}`)
         let commit = context.repo({
-          branch: config.target,
+          branch: config.targetBranch,
           message: `Remove ${pdfFile}`,
           path: pdfFile,
+          repo: config.targetRepo,
           sha: sha
         })
 
-        robot.log.info(`Commiting to repository on branch ${config.target}`)
+        robot.log.info(`Commiting to repository ${config.targetRepo} on branch ${config.targetBranch}`)
         if (!config.dry) context.github.repos.deleteFile(commit)
       }
 
@@ -60,21 +65,22 @@ module.exports = (robot) => {
       for (let file of modifiedFiles) {
         robot.log.info({file: file}, '.svg file modification detected')
         let pdfFile = file.replace('.svg', '.pdf')
-        let sha = await getSHA(context, pdfFile, config.target)
+        let sha = await getSHA(context, config, pdfFile)
 
         robot.log.info(`Reconverting ${file} into a .pdf file`)
         let pdf = await convert(context, file, branch)
 
         robot.log.info(`Preparing commit to update ${pdfFile}`)
         let commit = context.repo({
-          branch: config.target,
+          branch: config.targetBranch,
           content: pdf,
           message: `Update ${pdfFile}`,
           path: pdfFile,
+          repo: config.targetRepo,
           sha: sha
         })
 
-        robot.log.info(`Commiting to repository on branch ${config.target}`)
+        robot.log.info(`Commiting to repository ${config.targetRepo} on branch ${config.targetBranch}`)
         if (!config.dry) context.github.repos.updateFile(commit)
       }
     }

@@ -1,3 +1,5 @@
 dry: false
-source: source-branch
-target: target-branch
+sourceBranch: source-branch
+sourceRepo: testing-things
+targetBranch: target-branch
+targetRepo: testing-other-things

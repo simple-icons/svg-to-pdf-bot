@@ -7,7 +7,7 @@ const app = require('../index.js')
 const { differentChanges, multipleCommits } = require('./payloads/advanced')
 const { additions, removals, modifications } = require('./payloads/multiple')
 const { addition, removal, modification } = require('./payloads/single')
-const { jsonAdded, cssRemoved, htmlModified, wrongBranch } = require('./payloads/wrong')
+const { jsonAdded, cssRemoved, htmlModified, wrongBranch, wrongRepo } = require('./payloads/wrong')
 
 describe('svg-to-pdf', () => {
   let robot
@@ -172,27 +172,52 @@ describe('svg-to-pdf', () => {
     })
   })
 
-  describe('Branches', () => {
+  describe('Branches & Repos', () => {
     test('Commit additions to the configured branch', async () => {
-      let expectation = expect.objectContaining({branch: config.target})
+      let expectation = expect.objectContaining({branch: config.targetBranch})
+      await robot.receive(addition)
+      expect(github.repos.createFile).toHaveBeenCalledWith(expectation)
+    })
+
+    test('Commit additions to the configured repository', async () => {
+      let expectation = expect.objectContaining({repo: config.targetRepo})
       await robot.receive(addition)
       expect(github.repos.createFile).toHaveBeenCalledWith(expectation)
     })
 
     test('Commit removals to the configured branch', async () => {
-      let expectation = expect.objectContaining({branch: config.target})
+      let expectation = expect.objectContaining({branch: config.targetBranch})
+      await robot.receive(removal)
+      expect(github.repos.deleteFile).toHaveBeenCalledWith(expectation)
+    })
+
+    test('Commit removals to the configured repository', async () => {
+      let expectation = expect.objectContaining({repo: config.targetRepo})
       await robot.receive(removal)
       expect(github.repos.deleteFile).toHaveBeenCalledWith(expectation)
     })
 
     test('Commit modifications to the configured branch', async () => {
-      let expectation = expect.objectContaining({branch: config.target})
+      let expectation = expect.objectContaining({branch: config.targetBranch})
       await robot.receive(modification)
       expect(github.repos.updateFile).toHaveBeenCalledWith(expectation)
     })
 
-    test('Ignores pushes to an incorrect branch', async () => {
+    test('Commit modifications to the configured repository', async () => {
+      let expectation = expect.objectContaining({repo: config.targetRepo})
+      await robot.receive(modification)
+      expect(github.repos.updateFile).toHaveBeenCalledWith(expectation)
+    })
+
+    test('Ignores pushes to a branch other than the "sourcBranch"', async () => {
       await robot.receive(wrongBranch)
+      expect(github.repos.createFile).not.toHaveBeenCalled()
+      expect(github.repos.deleteFile).not.toHaveBeenCalled()
+      expect(github.repos.updateFile).not.toHaveBeenCalled()
+    })
+
+    test('Ignores pushes to a repository other than the "sourceRepo"', async () => {
+      await robot.receive(wrongRepo)
       expect(github.repos.createFile).not.toHaveBeenCalled()
       expect(github.repos.deleteFile).not.toHaveBeenCalled()
       expect(github.repos.updateFile).not.toHaveBeenCalled()
