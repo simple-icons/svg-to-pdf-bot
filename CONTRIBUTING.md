@@ -9,27 +9,9 @@ Simple Icons welcomes contributions and corrections. Before contributing, please
 
 ## Table of contents
 
-* [Running Locally](#running-locally)
 * [Guidelines](#guidelines)
 * [Writing Tests](#writing-tests)
-
-## Running Locally
-
-1. Go to [smee.io](https://smee.io/) and click **Start a new channel**. Set `WEBHOOK_PROXY_URL` in your `.env` to the URL that you are redirected to
-1. Create a [new github app](https://github.com/settings/apps/new) with:
-    - **Webhook URL**: Use your `WEBHOOK_PROXY_URL` from the previous step
-    - **Webhook Secret**: Use the `WEBHOOK_SECRET` from your `.env` file
-    - **Permissions and events**:
-        - Repository Contents - **Read & Write**
-            - Check the box for **Push** events
-        - Single File - **Read-only**
-            - Path: `.github/svg-to-pdf.yml`
-1. Download the private key and move it to the project's directory
-1. Edit `.env` and set `APP_ID` to the ID of the app you just created
-1. Install the dependencies for the project using `npm install`
-1. Start the bot using `npm start`
-
-> based on the [Developing an App](https://probot.github.io/docs/development/) section of the Probot docs
+* [Running Locally](#running-locally)
 
 ## Guidelines
 
@@ -39,6 +21,17 @@ Please note that modifications should follow these coding guidelines:
 - Use `async`/`await` over Promises and callbacks
 - Code should pass `npm test`
 
+Also consider the following, this bot is tailor-made for [Simple Icons](https://github.com/simple-icons/simple-icons) and changes should always be made with that in mind. If you wish to implement significant changes you are perhaps better off forking this repository.
+
 ## Writing Tests
 
-Tests for this bot are written using [Jest](https://facebook.github.io/jest/). For more information about testing a Probot have a look over [here](https://probot.github.io/docs/testing/). The testing code adheres to the same style as production code. If you need a new event, have a look in `test/payloads`. If you need a new icon or configuration file (or other file) have a look in `test/fixtures`.
+Tests for this bot are written using [Jest](https://facebook.github.io/jest/). For more information about testing a Probot have a look over [here](https://probot.github.io/docs/testing/). The testing code adheres to the same style guidelines as the production code. If you need a new event, have a look in `test/payloads`. If you need a new icon or configuration file (or other file) have a look in `test/fixtures`.
+
+## Running Locally
+
+To run the bot locally, follow the [Developing an App](https://probot.github.io/docs/development/) instructions from the Probot documentation. This particular bot requires these **Permissions & events** for the GitHub App:
+
+- Repository Contents - **Read & Write**
+    - Check the box for **Push** events
+- Single File - **Read-only**
+    - Path: `.github/svg-to-pdf.yml`
