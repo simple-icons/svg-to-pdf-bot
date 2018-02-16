@@ -1,7 +1,6 @@
 const { convert, getSHA } = require('./lib/util.js')
 
 const defaultConfig = {
-  dry: false,
   sourceBranch: 'develop',
   sourceRepo: 'simple-icons',
   targetBranch: 'master',
@@ -41,7 +40,7 @@ module.exports = (robot) => {
         })
 
         robot.log.info(`Commiting to repository ${config.targetRepo} on branch ${config.targetBranch}`)
-        if (!config.dry) context.github.repos.createFile(commit)
+        if (process.env.dry !== 'true') context.github.repos.createFile(commit)
       }
 
       let removedFiles = commit.removed.filter(file => fileFilter.test(file))
@@ -60,7 +59,7 @@ module.exports = (robot) => {
         })
 
         robot.log.info(`Commiting to repository ${config.targetRepo} on branch ${config.targetBranch}`)
-        if (!config.dry) context.github.repos.deleteFile(commit)
+        if (process.env.dry !== 'true') context.github.repos.deleteFile(commit)
       }
 
       let modifiedFiles = commit.modified.filter(file => fileFilter.test(file))
@@ -83,7 +82,7 @@ module.exports = (robot) => {
         })
 
         robot.log.info(`Commiting to repository ${config.targetRepo} on branch ${config.targetBranch}`)
-        if (!config.dry) context.github.repos.updateFile(commit)
+        if (process.env.dry !== 'true') context.github.repos.updateFile(commit)
       }
     }
   })

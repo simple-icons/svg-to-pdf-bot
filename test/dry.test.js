@@ -12,8 +12,11 @@ describe('svg-to-pdf', () => {
   let iconBuffer
 
   beforeAll(async () => {
-    configBuffer = await fs.readFile('./test/fixtures/dry-config.yml')
+    configBuffer = await fs.readFile('./test/fixtures/config.yml')
     iconBuffer = await fs.readFile('./test/fixtures/icon.svg')
+
+    // Make sure dry run is enabled
+    process.env.dry = 'true'
   })
 
   beforeEach(() => {

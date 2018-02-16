@@ -17,11 +17,14 @@ describe('svg-to-pdf', () => {
   let iconBuffer
 
   beforeAll(async () => {
-    configBuffer = await fs.readFile('./test/fixtures/standard-config.yml')
+    configBuffer = await fs.readFile('./test/fixtures/config.yml')
     iconBuffer = await fs.readFile('./test/fixtures/icon.svg')
 
     let configString = configBuffer.toString('ascii')
     config = yaml.parse(configString)
+
+    // Make sure dry run is disabled
+    process.env.dry = 'false'
   })
 
   beforeEach(() => {
