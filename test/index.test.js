@@ -7,7 +7,7 @@ const app = require('../index.js')
 const { differentChanges, multipleCommits } = require('./payloads/advanced')
 const { additions, removals, modifications } = require('./payloads/multiple')
 const { addition, removal, modification } = require('./payloads/single')
-const { jsonAdded, cssRemoved, htmlModified, wrongBranch, wrongRepo } = require('./payloads/wrong')
+const { wrongType, wrongFolder, wrongBranch, wrongRepo } = require('./payloads/wrong')
 
 describe('svg-to-pdf', () => {
   let robot
@@ -45,7 +45,7 @@ describe('svg-to-pdf', () => {
 
   describe('New files', () => {
     test('Create a new PDF', async () => {
-      let expectation = expect.objectContaining({path: 'test.pdf'})
+      let expectation = expect.objectContaining({path: 'icons/test.pdf'})
 
       await robot.receive(addition)
       expect(github.repos.createFile).toHaveBeenCalledTimes(1)
@@ -53,8 +53,8 @@ describe('svg-to-pdf', () => {
     })
 
     test('Create multiple new PDFs', async () => {
-      let expectationFoo = expect.objectContaining({path: 'foo.pdf'})
-      let expectationBar = expect.objectContaining({path: 'bar.pdf'})
+      let expectationFoo = expect.objectContaining({path: 'icons/foo.pdf'})
+      let expectationBar = expect.objectContaining({path: 'icons/bar.pdf'})
 
       await robot.receive(additions)
       expect(github.repos.createFile).toHaveBeenCalledTimes(2)
@@ -73,14 +73,19 @@ describe('svg-to-pdf', () => {
     })
 
     test('Ignore non SVG files', async () => {
-      await robot.receive(jsonAdded)
+      await robot.receive(wrongType)
+      expect(github.repos.createFile).not.toHaveBeenCalled()
+    })
+
+    test('Ignore SVG files in the wrong directory', async () => {
+      await robot.receive(wrongFolder)
       expect(github.repos.createFile).not.toHaveBeenCalled()
     })
   })
 
   describe('Removed files', () => {
     test('Delete the PDF version of a file', async () => {
-      let expectation = expect.objectContaining({path: 'test.pdf'})
+      let expectation = expect.objectContaining({path: 'icons/test.pdf'})
 
       await robot.receive(removal)
       expect(github.repos.deleteFile).toHaveBeenCalledTimes(1)
@@ -88,8 +93,8 @@ describe('svg-to-pdf', () => {
     })
 
     test('Delete the PDF version of multiple files', async () => {
-      let expectationFoo = expect.objectContaining({path: 'foo.pdf'})
-      let expectationBar = expect.objectContaining({path: 'bar.pdf'})
+      let expectationFoo = expect.objectContaining({path: 'icons/foo.pdf'})
+      let expectationBar = expect.objectContaining({path: 'icons/bar.pdf'})
 
       await robot.receive(removals)
       expect(github.repos.deleteFile).toHaveBeenCalledTimes(2)
@@ -108,14 +113,19 @@ describe('svg-to-pdf', () => {
     })
 
     test('Ignore non SVG files', async () => {
-      await robot.receive(cssRemoved)
+      await robot.receive(wrongType)
+      expect(github.repos.deleteFile).not.toHaveBeenCalled()
+    })
+
+    test('Ignore SVG files in the wrong directory', async () => {
+      await robot.receive(wrongFolder)
       expect(github.repos.deleteFile).not.toHaveBeenCalled()
     })
   })
 
   describe('Modified files', () => {
     test('Update the PDF version of a file', async () => {
-      let expectation = expect.objectContaining({path: 'test.pdf'})
+      let expectation = expect.objectContaining({path: 'icons/test.pdf'})
 
       await robot.receive(modification)
       expect(github.repos.updateFile).toHaveBeenCalledTimes(1)
@@ -123,8 +133,8 @@ describe('svg-to-pdf', () => {
     })
 
     test('Update the PDF version of multiple files', async () => {
-      let expectationFoo = expect.objectContaining({path: 'foo.pdf'})
-      let expectationBar = expect.objectContaining({path: 'bar.pdf'})
+      let expectationFoo = expect.objectContaining({path: 'icons/foo.pdf'})
+      let expectationBar = expect.objectContaining({path: 'icons/bar.pdf'})
 
       await robot.receive(modifications)
       expect(github.repos.updateFile).toHaveBeenCalledTimes(2)
@@ -143,16 +153,21 @@ describe('svg-to-pdf', () => {
     })
 
     test('Ignore non SVG files', async () => {
-      await robot.receive(htmlModified)
+      await robot.receive(wrongType)
+      expect(github.repos.updateFile).not.toHaveBeenCalled()
+    })
+
+    test('Ignore SVG files in the wrong directory', async () => {
+      await robot.receive(wrongFolder)
       expect(github.repos.updateFile).not.toHaveBeenCalled()
     })
   })
 
   describe('Multiple changes', () => {
     test('Different changes in multiple commits', async () => {
-      let expectationAdded = expect.objectContaining({path: 'added.pdf'})
-      let expectationRemoved = expect.objectContaining({path: 'removed.pdf'})
-      let expectationModified = expect.objectContaining({path: 'modified.pdf'})
+      let expectationAdded = expect.objectContaining({path: 'icons/added.pdf'})
+      let expectationRemoved = expect.objectContaining({path: 'icons/removed.pdf'})
+      let expectationModified = expect.objectContaining({path: 'icons/modified.pdf'})
 
       await robot.receive(multipleCommits)
       expect(github.repos.createFile).toHaveBeenCalledWith(expectationAdded)
@@ -161,9 +176,9 @@ describe('svg-to-pdf', () => {
     })
 
     test('Different changes in a single commit', async () => {
-      let expectationAdded = expect.objectContaining({path: 'added.pdf'})
-      let expectationRemoved = expect.objectContaining({path: 'removed.pdf'})
-      let expectationModified = expect.objectContaining({path: 'modified.pdf'})
+      let expectationAdded = expect.objectContaining({path: 'icons/added.pdf'})
+      let expectationRemoved = expect.objectContaining({path: 'icons/removed.pdf'})
+      let expectationModified = expect.objectContaining({path: 'icons/modified.pdf'})
 
       await robot.receive(differentChanges)
       expect(github.repos.createFile).toHaveBeenCalledWith(expectationAdded)

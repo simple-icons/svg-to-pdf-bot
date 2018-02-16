@@ -5,9 +5,9 @@
       "ref": "refs/heads/source-branch",
       "commits": [
         {
-          "added": ["added.svg"],
-          "modified": ["modified.svg"],
-          "removed": ["removed.svg"]
+          "added": ["icons/added.svg"],
+          "modified": ["icons/modified.svg"],
+          "removed": ["icons/removed.svg"]
         }
       ],
       "repository": {
@@ -28,21 +28,21 @@
       "commits": [
         {
           "message": "first commit",
-          "added": ["added.svg"],
+          "added": ["icons/added.svg"],
           "modified": [],
           "removed": []
         },
         {
           "message": "second commit",
           "added": [],
-          "modified": ["modified.svg"],
+          "modified": ["icons/modified.svg"],
           "removed": []
         },
         {
           "message": "second commit",
           "added": [],
           "modified": [],
-          "removed": ["removed.svg"]
+          "removed": ["icons/removed.svg"]
         }
       ],
       "repository": {

@@ -8,6 +8,8 @@ const defaultConfig = {
   targetRepo: 'simple-icons-pdf'
 }
 
+const fileFilter = /icons\/.*\.svg/
+
 module.exports = (robot) => {
   robot.on('push', async context => {
     robot.log.debug('New push detected')
@@ -16,14 +18,14 @@ module.exports = (robot) => {
     let branch = context.payload.ref.replace('refs/heads/', '')
     let repo = context.payload.repository.name
     if (branch !== config.sourceBranch || repo !== config.sourceRepo) {
-      robot.log.info({branch: branch, repo: repo}, 'event ignored, branch and/or repo not the correct source')
+      robot.log.info({branch, repo}, 'event ignored, branch and/or repo not the correct source')
       return
     }
 
     for (let commit of context.payload.commits) {
-      let newFiles = commit.added.filter(file => file.endsWith('.svg'))
+      let newFiles = commit.added.filter(file => fileFilter.test(file))
       for (let file of newFiles) {
-        robot.log.info({file: file}, 'new .svg file detected')
+        robot.log.info({file}, 'new .svg file detected')
         let pdfFile = file.replace('.svg', '.pdf')
 
         robot.log.info(`Converting ${file} into a .pdf file`)
@@ -42,9 +44,9 @@ module.exports = (robot) => {
         if (!config.dry) context.github.repos.createFile(commit)
       }
 
-      let removedFiles = commit.removed.filter(file => file.endsWith('.svg'))
+      let removedFiles = commit.removed.filter(file => fileFilter.test(file))
       for (let file of removedFiles) {
-        robot.log.info({file: file}, '.svg file deletion detected')
+        robot.log.info({file}, '.svg file deletion detected')
         let pdfFile = file.replace('.svg', '.pdf')
         let sha = await getSHA(context, config, pdfFile)
 
@@ -61,9 +63,9 @@ module.exports = (robot) => {
         if (!config.dry) context.github.repos.deleteFile(commit)
       }
 
-      let modifiedFiles = commit.modified.filter(file => file.endsWith('.svg'))
+      let modifiedFiles = commit.modified.filter(file => fileFilter.test(file))
       for (let file of modifiedFiles) {
-        robot.log.info({file: file}, '.svg file modification detected')
+        robot.log.info({file}, '.svg file modification detected')
         let pdfFile = file.replace('.svg', '.pdf')
         let sha = await getSHA(context, config, pdfFile)
 

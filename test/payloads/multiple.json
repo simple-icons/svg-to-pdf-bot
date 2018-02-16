@@ -5,7 +5,7 @@
       "ref": "refs/heads/source-branch",
       "commits": [
         {
-          "added": ["foo.svg", "bar.svg"],
+          "added": ["icons/foo.svg", "icons/bar.svg"],
           "modified": [],
           "removed": []
         }
@@ -29,7 +29,7 @@
         {
           "added": [],
           "modified": [],
-          "removed": ["foo.svg", "bar.svg"]
+          "removed": ["icons/foo.svg", "icons/bar.svg"]
         }
       ],
       "repository": {
@@ -50,7 +50,7 @@
       "commits": [
         {
           "added": [],
-          "modified": ["foo.svg", "bar.svg"],
+          "modified": ["icons/foo.svg", "icons/bar.svg"],
           "removed": []
         }
       ],

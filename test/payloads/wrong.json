@@ -1,13 +1,13 @@
 {
-  "jsonAdded": {
+  "wrongType": {
     "event": "push",
     "payload": {
-      "ref": "refs/heads/this-is-not-the-branch-youre-looking-for",
+      "ref": "refs/heads/source-branch",
       "commits": [
         {
-          "added": ["added.json"],
-          "modified": [],
-          "removed": []
+          "added": ["icons/added.json"],
+          "modified": ["icons/modified.html"],
+          "removed": ["icons/removed.css"]
         }
       ],
       "repository": {
@@ -21,37 +21,15 @@
       }
     }
   },
-  "cssRemoved": {
+  "wrongFolder": {
     "event": "push",
     "payload": {
-      "ref": "refs/heads/this-is-not-the-branch-youre-looking-for",
+      "ref": "refs/heads/source-branch",
       "commits": [
         {
-          "added": [],
-          "modified": [],
-          "removed": ["removed.css"]
-        }
-      ],
-      "repository": {
-        "name": "testing-things",
-        "owner": {
-          "login": "ericcornelissen"
-        }
-      },
-      "installation": {
-        "id": 9001
-      }
-    }
-  },
-  "htmlModified": {
-    "event": "push",
-    "payload": {
-      "ref": "refs/heads/this-is-not-the-branch-youre-looking-for",
-      "commits": [
-        {
-          "added": [],
-          "modified": ["modified.html"],
-          "removed": []
+          "added": ["foobar/added.svg"],
+          "modified": ["foobar/modified.svg"],
+          "removed": ["foobar/removed.svg"]
         }
       ],
       "repository": {
@@ -71,9 +49,9 @@
       "ref": "refs/heads/this-is-not-the-branch-youre-looking-for",
       "commits": [
         {
-          "added": ["banana.svg"],
-          "modified": ["for.svg"],
-          "removed": ["scale.svg"]
+          "added": ["icons/banana.svg"],
+          "modified": ["icons/for.svg"],
+          "removed": ["icons/scale.svg"]
         }
       ],
       "repository": {
@@ -93,9 +71,9 @@
       "ref": "refs/heads/source-branch",
       "commits": [
         {
-          "added": ["banana.svg"],
-          "modified": ["for.svg"],
-          "removed": ["scale.svg"]
+          "added": ["icons/banana.svg"],
+          "modified": ["icons/for.svg"],
+          "removed": ["icons/scale.svg"]
         }
       ],
       "repository": {
