@@ -3,6 +3,9 @@ node_modules/
 npm-debug.log
 package-lock.json
 
+# Testing
+coverage/
+
 # Miscellaneous
 *.pem
 .env
