@@ -1,0 +1,44 @@
+#!/usr/bin/env node
+
+const argv = require('argv')
+const fs = require('fs-promise')
+const svg2pdf = require('../lib/svg-to-pdf.js')
+
+const args = argv.option([
+  {
+    name: 'file',
+    short: 'f',
+    type: 'string',
+    description: 'name of the file to convert'
+  },
+  {
+    name: 'dir',
+    short: 'd',
+    type: 'string',
+    description: 'name of the folder to convert'
+  }
+]).run()
+
+// converters
+async function convertFile(file) {
+  let pdfFile = file.replace('.svg', '.pdf')
+
+  let buffer = await fs.readFile(file)
+  let svg = buffer.toString('base64')
+  let pdf = await svg2pdf(svg)
+  let data = Buffer.from(pdf, 'base64')
+
+  await fs.writeFile(pdfFile, data)
+}
+
+async function convertFolder(folder) {
+  let files = await fs.readdir(folder)
+  files.map(file => `${folder}\\${file}`).forEach(convertFile)
+}
+
+// main
+if (args.options.dir) {
+  convertFolder(args.options.dir)
+} else if (args.options.file) {
+  convertFile(args.options.file)
+}

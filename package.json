@@ -17,6 +17,7 @@
     "svg-to-pdfkit": "^0.1.6"
   },
   "devDependencies": {
+    "argv": "0.0.2",
     "fs-promise": "^2.0.3",
     "jest": "^21.2.1",
     "nodemon": "^1.14.11",
