@@ -1,4 +1,4 @@
-const { convert, getSHA } = require('./lib/util.js')
+const { convert, getSHA } = require('./src/util.js')
 
 const defaultConfig = {
   sourceBranch: 'develop',
