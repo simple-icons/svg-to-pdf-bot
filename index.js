@@ -47,7 +47,13 @@ module.exports = (robot) => {
       for (let file of removedFiles) {
         robot.log.info({file}, '.svg file deletion detected')
         let pdfFile = file.replace('.svg', '.pdf')
-        let sha = await getSHA(context, config, pdfFile)
+
+        let sha
+        try {
+          sha = await getSHA(context, config, pdfFile)
+        } catch (e) {
+          continue
+        }
 
         robot.log.info(`Preparing commit to delete ${pdfFile}`)
         let commit = context.repo({
@@ -66,7 +72,13 @@ module.exports = (robot) => {
       for (let file of modifiedFiles) {
         robot.log.info({file}, '.svg file modification detected')
         let pdfFile = file.replace('.svg', '.pdf')
-        let sha = await getSHA(context, config, pdfFile)
+
+        let sha
+        try {
+          sha = await getSHA(context, config, pdfFile)
+        } catch (e) {
+          continue // TODO: add pdf instead
+        }
 
         robot.log.info(`Reconverting ${file} into a .pdf file`)
         let pdf = await convert(context, file, branch)

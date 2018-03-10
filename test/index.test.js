@@ -13,12 +13,15 @@ describe('svg-to-pdf', () => {
   let robot
   let github
   let config
-  let configBuffer
-  let iconBuffer
+  let getConfig
+  let getIcon
 
   beforeAll(async () => {
-    configBuffer = await fs.readFile('./test/fixtures/config.yml')
-    iconBuffer = await fs.readFile('./test/fixtures/icon.svg')
+    let configBuffer = await fs.readFile('./test/fixtures/config.yml')
+    getConfig = { data: { content: configBuffer.toString('base64') } }
+
+    let iconBuffer = await fs.readFile('./test/fixtures/icon.svg')
+    getIcon = { data: { content: iconBuffer.toString('base64') } }
 
     let configString = configBuffer.toString('ascii')
     config = yaml.parse(configString)
@@ -35,8 +38,8 @@ describe('svg-to-pdf', () => {
     github = {
       repos: {
         getContent: jest.fn()
-          .mockReturnValueOnce(Promise.resolve({ data: { content: configBuffer.toString('base64') } }))
-          .mockReturnValue(Promise.resolve({ data: { content: iconBuffer.toString('base64') } })),
+          .mockReturnValueOnce(Promise.resolve(getConfig))
+          .mockReturnValue(Promise.resolve(getIcon)),
         createFile: jest.fn(),
         deleteFile: jest.fn(),
         updateFile: jest.fn()
@@ -124,6 +127,14 @@ describe('svg-to-pdf', () => {
       await robot.receive(wrongFolder)
       expect(github.repos.deleteFile).not.toHaveBeenCalled()
     })
+
+    test('Ignore if a PDF version does not exist', async () => {
+      github.repos.getContent = jest.fn()
+        .mockReturnValueOnce(Promise.resolve(getConfig))
+        .mockReturnValue(Promise.reject(new Error()))
+      await robot.receive(removal)
+      expect(github.repos.deleteFile).toHaveBeenCalledTimes(0)
+    })
   })
 
   describe('Modified files', () => {
@@ -163,6 +174,14 @@ describe('svg-to-pdf', () => {
     test('Ignore SVG files in the wrong directory', async () => {
       await robot.receive(wrongFolder)
       expect(github.repos.updateFile).not.toHaveBeenCalled()
+    })
+
+    test('Ignore if a PDF version does not exist', async () => {
+      github.repos.getContent = jest.fn()
+        .mockReturnValueOnce(Promise.resolve(getConfig))
+        .mockReturnValue(Promise.reject(new Error()))
+      await robot.receive(modification)
+      expect(github.repos.updateFile).toHaveBeenCalledTimes(0)
     })
   })
 

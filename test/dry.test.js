@@ -8,12 +8,15 @@ const { addition, removal, modification } = require('./payloads/single')
 describe('svg-to-pdf', () => {
   let robot
   let github
-  let configBuffer
-  let iconBuffer
+  let getConfig
+  let getIcon
 
   beforeAll(async () => {
-    configBuffer = await fs.readFile('./test/fixtures/config.yml')
-    iconBuffer = await fs.readFile('./test/fixtures/icon.svg')
+    let configBuffer = await fs.readFile('./test/fixtures/config.yml')
+    getConfig = { data: { content: configBuffer.toString('base64') } }
+
+    let iconBuffer = await fs.readFile('./test/fixtures/icon.svg')
+    getIcon = { data: { content: iconBuffer.toString('base64') } }
 
     // Make sure dry run is enabled
     process.env.dry = 'true'
@@ -27,8 +30,8 @@ describe('svg-to-pdf', () => {
     github = {
       repos: {
         getContent: jest.fn()
-          .mockReturnValueOnce(Promise.resolve({ data: { content: configBuffer.toString('base64') } }))
-          .mockReturnValue(Promise.resolve({ data: { content: iconBuffer.toString('base64') } })),
+          .mockReturnValueOnce(Promise.resolve(getConfig))
+          .mockReturnValue(Promise.resolve(getIcon)),
         createFile: jest.fn(),
         deleteFile: jest.fn(),
         updateFile: jest.fn()
