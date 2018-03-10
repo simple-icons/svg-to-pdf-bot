@@ -21,9 +21,15 @@ module.exports = (robot) => {
       return
     }
 
-    for (let commit of context.payload.commits) {
+    let processed = []
+    for (let commit of context.payload.commits.reverse()) {
       let modifiedFiles = commit.modified.filter(file => fileFilter.test(file))
       for (let file of modifiedFiles) {
+        if (processed.includes(file)) {
+          robot.log.debug({file}, 'skipping file becuase later commits overwrite this change')
+          continue
+        }
+
         robot.log.info({file}, '.svg file modification detected')
         let pdfFile = file.replace('.svg', '.pdf')
 
@@ -51,10 +57,17 @@ module.exports = (robot) => {
 
         robot.log.info(`Commiting to repository ${config.targetRepo} on branch ${config.targetBranch}`)
         if (process.env.dry !== 'true') context.github.repos.updateFile(newCommit)
+
+        processed.push(file)
       }
 
       let newFiles = commit.added.filter(file => fileFilter.test(file))
       for (let file of newFiles) {
+        if (processed.includes(file)) {
+          robot.log.debug({file}, 'skipping file becuase later commits overwrite this change')
+          continue
+        }
+
         robot.log.info({file}, 'new .svg file detected')
         let pdfFile = file.replace('.svg', '.pdf')
 
@@ -72,10 +85,17 @@ module.exports = (robot) => {
 
         robot.log.info(`Commiting to repository ${config.targetRepo} on branch ${config.targetBranch}`)
         if (process.env.dry !== 'true') context.github.repos.createFile(newCommit)
+
+        processed.push(file)
       }
 
       let removedFiles = commit.removed.filter(file => fileFilter.test(file))
       for (let file of removedFiles) {
+        if (processed.includes(file)) {
+          robot.log.debug({file}, 'skipping file becuase later commits overwrite this change')
+          continue
+        }
+
         robot.log.info({file}, '.svg file deletion detected')
         let pdfFile = file.replace('.svg', '.pdf')
 
@@ -97,6 +117,8 @@ module.exports = (robot) => {
 
         robot.log.info(`Commiting to repository ${config.targetRepo} on branch ${config.targetBranch}`)
         if (process.env.dry !== 'true') context.github.repos.deleteFile(newCommit)
+
+        processed.push(file)
       }
     }
   })

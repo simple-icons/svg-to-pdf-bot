@@ -1,5 +1,5 @@
 {
-  "differentChanges": {
+  "multipleChanges": {
     "event": "push",
     "payload": {
       "ref": "refs/heads/source-branch",
@@ -43,6 +43,47 @@
           "added": [],
           "modified": [],
           "removed": ["icons/removed.svg"]
+        }
+      ],
+      "repository": {
+        "name": "testing-things",
+        "owner": {
+          "login": "ericcornelissen"
+        }
+      },
+      "installation": {
+        "id": 9001
+      }
+    }
+  },
+  "overwrites": {
+    "event": "push",
+    "payload": {
+      "ref": "refs/heads/source-branch",
+      "commits": [
+        {
+          "message": "first commit",
+          "added": ["icons/lorem.svg"],
+          "modified": [],
+          "removed": []
+        },
+        {
+          "message": "second commit",
+          "added": [],
+          "modified": ["icons/lorem.svg", "icons/ipsum.svg"],
+          "removed": []
+        },
+        {
+          "message": "third commit",
+          "added": [],
+          "modified": [],
+          "removed": ["icons/ipsum.svg", "icons/dolor.svg"]
+        },
+        {
+          "message": "fourth commit",
+          "added": ["icons/dolor.svg"],
+          "modified": [],
+          "removed": []
         }
       ],
       "repository": {

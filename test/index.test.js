@@ -4,7 +4,7 @@ const yaml = require('yamljs')
 
 const app = require('../index.js')
 
-const { differentChanges, multipleCommits } = require('./payloads/advanced')
+const { multipleChanges, multipleCommits, overwrites } = require('./payloads/advanced')
 const { additions, removals, modifications } = require('./payloads/multiple')
 const { addition, removal, modification } = require('./payloads/single')
 const { wrongType, wrongFolder, wrongBranch, wrongRepo } = require('./payloads/wrong')
@@ -131,7 +131,7 @@ describe('svg-to-pdf', () => {
     test('Ignore if a PDF version does not exist', async () => {
       github.repos.getContent = jest.fn()
         .mockReturnValueOnce(Promise.resolve(getConfig))
-        .mockReturnValue(Promise.reject(new Error()))
+        .mockReturnValue(Promise.resolve({ }))
 
       await robot.receive(removal)
       expect(github.repos.deleteFile).toHaveBeenCalledTimes(0)
@@ -180,7 +180,7 @@ describe('svg-to-pdf', () => {
     test('Ignore if a PDF version does not exist', async () => {
       github.repos.getContent = jest.fn()
         .mockReturnValueOnce(Promise.resolve(getConfig))
-        .mockReturnValueOnce(Promise.reject(new Error()))
+        .mockReturnValueOnce(Promise.resolve({ }))
         .mockReturnValue(Promise.resolve(getIcon))
 
       await robot.receive(modification)
@@ -206,10 +206,24 @@ describe('svg-to-pdf', () => {
       let expectationRemoved = expect.objectContaining({path: 'icons/removed.pdf'})
       let expectationModified = expect.objectContaining({path: 'icons/modified.pdf'})
 
-      await robot.receive(differentChanges)
+      await robot.receive(multipleChanges)
       expect(github.repos.createFile).toHaveBeenCalledWith(expectationAdded)
       expect(github.repos.deleteFile).toHaveBeenCalledWith(expectationRemoved)
       expect(github.repos.updateFile).toHaveBeenCalledWith(expectationModified)
+    })
+
+    test('New commits ovewrite older commits', async () => {
+      github.repos.getContent = jest.fn()
+        .mockReturnValueOnce(Promise.resolve(getConfig))
+        .mockReturnValueOnce(Promise.resolve(getIcon)) // add dolor.svg
+        .mockReturnValueOnce(Promise.resolve(getIcon)) // remove ipsum.svg
+        .mockReturnValueOnce(Promise.resolve({ })) // modify lorem.svg
+        .mockReturnValueOnce(Promise.resolve(getIcon)) // add lorem.svg
+
+      await robot.receive(overwrites)
+      expect(github.repos.createFile).toHaveBeenCalledTimes(2)
+      expect(github.repos.deleteFile).toHaveBeenCalledTimes(1)
+      expect(github.repos.updateFile).toHaveBeenCalledTimes(0)
     })
   })
 
