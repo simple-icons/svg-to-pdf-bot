@@ -22,6 +22,37 @@ module.exports = (robot) => {
     }
 
     for (let commit of context.payload.commits) {
+      let modifiedFiles = commit.modified.filter(file => fileFilter.test(file))
+      for (let file of modifiedFiles) {
+        robot.log.info({file}, '.svg file modification detected')
+        let pdfFile = file.replace('.svg', '.pdf')
+
+        let sha
+        try {
+          sha = await getSHA(context, config, pdfFile)
+        } catch (e) {
+          robot.log.info(`.pdf version of ${file} not found, adding instead`)
+          commit.added.push(file)
+          continue
+        }
+
+        robot.log.info(`Reconverting ${file} into a .pdf file`)
+        let pdf = await convert(context, file, branch)
+
+        robot.log.info(`Preparing commit to update ${pdfFile}`)
+        let newCommit = context.repo({
+          branch: config.targetBranch,
+          content: pdf,
+          message: `Update ${pdfFile}`,
+          path: pdfFile,
+          repo: config.targetRepo,
+          sha: sha
+        })
+
+        robot.log.info(`Commiting to repository ${config.targetRepo} on branch ${config.targetBranch}`)
+        if (process.env.dry !== 'true') context.github.repos.updateFile(newCommit)
+      }
+
       let newFiles = commit.added.filter(file => fileFilter.test(file))
       for (let file of newFiles) {
         robot.log.info({file}, 'new .svg file detected')
@@ -31,7 +62,7 @@ module.exports = (robot) => {
         let pdf = await convert(context, file, branch)
 
         robot.log.info(`Preparing commit for the newly created .pdf`)
-        let commit = context.repo({
+        let newCommit = context.repo({
           branch: config.targetBranch,
           content: pdf,
           message: `Add ${file} as pdf`,
@@ -40,7 +71,7 @@ module.exports = (robot) => {
         })
 
         robot.log.info(`Commiting to repository ${config.targetRepo} on branch ${config.targetBranch}`)
-        if (process.env.dry !== 'true') context.github.repos.createFile(commit)
+        if (process.env.dry !== 'true') context.github.repos.createFile(newCommit)
       }
 
       let removedFiles = commit.removed.filter(file => fileFilter.test(file))
@@ -56,7 +87,7 @@ module.exports = (robot) => {
         }
 
         robot.log.info(`Preparing commit to delete ${pdfFile}`)
-        let commit = context.repo({
+        let newCommit = context.repo({
           branch: config.targetBranch,
           message: `Remove ${pdfFile}`,
           path: pdfFile,
@@ -65,36 +96,7 @@ module.exports = (robot) => {
         })
 
         robot.log.info(`Commiting to repository ${config.targetRepo} on branch ${config.targetBranch}`)
-        if (process.env.dry !== 'true') context.github.repos.deleteFile(commit)
-      }
-
-      let modifiedFiles = commit.modified.filter(file => fileFilter.test(file))
-      for (let file of modifiedFiles) {
-        robot.log.info({file}, '.svg file modification detected')
-        let pdfFile = file.replace('.svg', '.pdf')
-
-        let sha
-        try {
-          sha = await getSHA(context, config, pdfFile)
-        } catch (e) {
-          continue // TODO: add pdf instead
-        }
-
-        robot.log.info(`Reconverting ${file} into a .pdf file`)
-        let pdf = await convert(context, file, branch)
-
-        robot.log.info(`Preparing commit to update ${pdfFile}`)
-        let commit = context.repo({
-          branch: config.targetBranch,
-          content: pdf,
-          message: `Update ${pdfFile}`,
-          path: pdfFile,
-          repo: config.targetRepo,
-          sha: sha
-        })
-
-        robot.log.info(`Commiting to repository ${config.targetRepo} on branch ${config.targetBranch}`)
-        if (process.env.dry !== 'true') context.github.repos.updateFile(commit)
+        if (process.env.dry !== 'true') context.github.repos.deleteFile(newCommit)
       }
     }
   })

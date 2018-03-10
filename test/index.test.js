@@ -132,6 +132,7 @@ describe('svg-to-pdf', () => {
       github.repos.getContent = jest.fn()
         .mockReturnValueOnce(Promise.resolve(getConfig))
         .mockReturnValue(Promise.reject(new Error()))
+
       await robot.receive(removal)
       expect(github.repos.deleteFile).toHaveBeenCalledTimes(0)
     })
@@ -179,9 +180,12 @@ describe('svg-to-pdf', () => {
     test('Ignore if a PDF version does not exist', async () => {
       github.repos.getContent = jest.fn()
         .mockReturnValueOnce(Promise.resolve(getConfig))
-        .mockReturnValue(Promise.reject(new Error()))
+        .mockReturnValueOnce(Promise.reject(new Error()))
+        .mockReturnValue(Promise.resolve(getIcon))
+
       await robot.receive(modification)
       expect(github.repos.updateFile).toHaveBeenCalledTimes(0)
+      expect(github.repos.createFile).toHaveBeenCalledTimes(1)
     })
   })
 
