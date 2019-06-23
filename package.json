@@ -1,10 +1,13 @@
 {
   "name": "simpleicons-svg-to-pdf",
   "version": "1.0.2",
-  "description": "",
+  "description": "A GitHub App that converts SVGs into PDFs",
   "author": "Eric Cornelissen <ericornelissen@gmail.com>",
   "license": "ISC",
-  "repository": "https://github.com/ericcornelissen/simpleicons-svg-to-pdf.git",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/simple-icons/svg-to-pdf-bot.git"
+  },
   "scripts": {
     "dev": "nodemon --exec \"npm start\"",
     "start": "probot run ./index.js",
@@ -19,7 +22,7 @@
   "devDependencies": {
     "argv": "0.0.2",
     "fs-promise": "^2.0.3",
-    "jest": "^21.2.1",
+    "jest": "^24.8.0",
     "nodemon": "^1.14.11",
     "smee-client": "^1.0.1",
     "standard": "^10.0.3",
