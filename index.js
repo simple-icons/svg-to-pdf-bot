@@ -84,7 +84,7 @@ module.exports = (robot) => {
         })
 
         robot.log.info(`Commiting to repository ${config.targetRepo} on branch ${config.targetBranch}`)
-        if (process.env.dry !== 'true') context.github.repos.createFile(newCommit)
+        if (process.env.dry !== 'true') context.github.repos.createOrUpdateFile(newCommit)
 
         processed.push(file)
       }
